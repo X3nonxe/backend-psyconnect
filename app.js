@@ -14,7 +14,6 @@ const chatRoutes = require('./routes/chatRoutes');
 const app = express();
 const SERVER = http.createServer(app);
 const IO = socketIo(SERVER); // Menambahkan Socket.io ke server
-const PORT = 3000;
 
 // Menangani koneksi WebSocket
 IO.on('connection', (socket) => {
@@ -42,7 +41,8 @@ IO.on('connection', (socket) => {
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: '*',
+    origin: process.env.CLIENT_URL || '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
   })
 );
 app.use('/api/auth', authRoutes);
@@ -52,6 +52,6 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/chat', chatRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Server running on http://localhost:${process.env.PORT}`);
 });
