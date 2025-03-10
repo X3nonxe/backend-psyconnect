@@ -1,27 +1,29 @@
-const mailgun = require('mailgun-js');
-const dotenv = require('dotenv');
+// const mailgun = require('mailgun-js');
+// const dotenv = require('dotenv');
 
-dotenv.config();
-const DOMAIN = process.env.MAILGUN_DOMAIN;
-const apiKey = process.env.MAILGUN_API_KEY;
+// dotenv.config();
+// const DOMAIN = process.env.MAILGUN_DOMAIN;
+// const apiKey = process.env.MAILGUN_API_KEY;
 
-const mg = mailgun({ apiKey, domain: DOMAIN });
+// console.log(apiKey);
 
-const sendEmail = (to, subject, text) => {
-  const data = {
-    from: 'your-email@your-domain.com', // Ganti dengan email pengirim Anda
-    to,
-    subject,
-    text
-  };
+// const mg = mailgun({ apiKey, domain: DOMAIN });
 
-  mg.messages().send(data, (error, body) => {
-    if (error) {
-      console.error('Error sending email:', error);
-    } else {
-      console.log('Email sent:', body);
-    }
-  });
-};
+// const sendEmail = (to, subject, text) => {
+//   const data = {
+//     from: 'your-email@your-domain.com', // Ganti dengan email pengirim Anda
+//     to,
+//     subject,
+//     text,
+//   };
 
-module.exports = { sendEmail };
+//   mg.messages().send(data, (error, body) => {
+//     if (error) {
+//       console.error('Error sending email:', error);
+//     } else {
+//       console.log('Email sent:', body);
+//     }
+//   });
+// };
+
+// module.exports = { sendEmail };
