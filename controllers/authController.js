@@ -65,7 +65,7 @@ const login = (req, res) => {
         }
 
         const roleName = roleResults[0].nama_role;
-        const token = jwt.sign({ id: user.id_user, role_id: user.role_id, role_name: roleName }, 'secretkey', { expiresIn: '1h' });
+        const token = jwt.sign({ id: user.id_user, role_id: user.role_id, role_name: roleName }, 'secretkey', { expiresIn: '30d' });
 
         res.json({
           message: `Login berhasil sebagai ${roleName}`,
