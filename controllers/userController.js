@@ -67,11 +67,15 @@ const detailPsikolog = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.params.id;
+    console.log(userId);
     const user = await User.findById(userId);
 
     if (!user) {
-      return handleError(res, 404, 'User not found');
+      return res.status(404).json({
+        status: 'error',
+        message: 'User tidak ditemukan',
+      });
     }
 
     res.json({
@@ -81,10 +85,15 @@ const getProfile = async (req, res) => {
         name: user.nama,
         email: user.email,
         role_id: user.role_id,
+        created_at: user.created_at,
       },
     });
   } catch (err) {
-    return handleError(res, 500, 'Error retrieving profile', err);
+    console.error(err);
+    res.status(500).json({
+      status: 'error',
+      message: 'Terjadi kesalahan server',
+    });
   }
 };
 
@@ -123,4 +132,101 @@ const updatePassword = async (req, res) => {
   }
 };
 
-module.exports = { getProfile, updateProfile, updatePassword, getAllUsers, getAllPsikolog, detailPsikolog };
+const updatePsikolog = async (req, res) => {
+  try {
+    const psikologId = req.params.id;
+    const { nama, email, password, nomor_telepon, jenis_kelamin, foto, aktif } = req.body;
+
+    const updateData = {
+      nama,
+      email,
+      nomor_telepon,
+      jenis_kelamin: jenis_kelamin.toUpperCase(),
+      foto,
+      aktif,
+    };
+
+    // Validasi jenis kelamin
+    if (!['P', 'L'].includes(updateData.jenis_kelamin)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Jenis kelamin harus P atau L',
+      });
+    }
+
+    // Handle password
+    if (password) {
+      if (password.length < 8) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Password minimal 8 karakter',
+        });
+      }
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    // Eksekusi update
+    const updatedPsikolog = await User.updateUser(psikologId, updateData);
+
+    res.json({
+      status: 'success',
+      message: 'Psikolog berhasil diupdate',
+      data: {
+        nama: updatedPsikolog.nama,
+        email: updatedPsikolog.email,
+        nomor_telepon: updatedPsikolog.nomor_telepon,
+        jenis_kelamin: updatedPsikolog.jenis_kelamin,
+        foto: updatedPsikolog.foto,
+        aktif: updatedPsikolog.aktif,
+        updated_at: updatedPsikolog.updated_at,
+      },
+    });
+  } catch (err) {
+    console.error('Update error:', err);
+
+    const statusCode = err.message === 'Psikolog tidak ditemukan' ? 404 : 500;
+    const message = err.message === 'Psikolog tidak ditemukan' ? err.message : 'Gagal mengupdate psikolog';
+
+    res.status(statusCode).json({
+      status: 'error',
+      message: message,
+      error: process.env.NODE_ENV === 'development' ? err : null,
+    });
+  }
+};
+
+const deletePsikolog = async (req, res) => {
+  try {
+    const psikologId = req.params.id;
+
+    const result = await User.deleteUser(psikologId, (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({
+          status: 'error',
+          message: 'Error deleting psikolog',
+        });
+      }
+
+      if (!result.affectedRows) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Psikolog tidak ditemukan',
+        });
+      }
+
+      res.json({
+        status: 'success',
+        message: 'Psikolog berhasil dihapus',
+      });
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: 'error',
+      message: 'Terjadi kesalahan server',
+    });
+  }
+};
+
+module.exports = { getProfile, updateProfile, updatePassword, getAllUsers, getAllPsikolog, detailPsikolog, updatePsikolog, deletePsikolog };

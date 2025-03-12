@@ -24,9 +24,8 @@ const registerPsychologistSchema = Joi.object({
     'any.only': 'Jenis kelamin tidak valid. Gunakan "L" atau "P".',
     'any.required': 'Jenis kelamin wajib diisi.',
   }),
-  aktif: Joi.boolean().required().messages({
-    'any.required': 'Status aktif wajib diisi.',
-  }),
+  foto: Joi.string().required(),
+  aktif: Joi.string().required(),
 });
 
 module.exports = registerPsychologistSchema;

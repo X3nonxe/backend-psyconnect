@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { v4: uuidv4 } = require('uuid');
 const User = require('../models/User');
 const Roles = require('../models/Roles');
 const hashPassword = require('../utils/hashPassword');
@@ -29,19 +30,25 @@ const registerPsychologist = async (req, res) => {
   const roleId = 2;
   const { nama, email, password, nomor_telepon, jenis_kelamin, foto, aktif } = req.body;
 
-  if (req.user.role_id !== "1") {
+  if (req.user.role_id !== '1') {
     return res.status(403).json({ message: 'Hanya admin yang dapat mendaftarkan psikolog.' });
   }
 
   try {
+    const id_user = uuidv4();
+    const created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const hashedPassword = await hashPassword(password);
-    await createUser({ nama, email, password: hashedPassword, nomor_telepon, jenis_kelamin, foto, aktif, role_id: roleId });
+    await createUser({ id_user, nama, email, password: hashedPassword, nomor_telepon, jenis_kelamin, foto, aktif, role_id: roleId, created_at });
     res.status(201).json({
       message: 'Psycholog registered successfully',
       data: { nama, email, nomor_telepon, jenis_kelamin, foto, aktif, role_id: roleId },
     });
   } catch (error) {
-    res.status(500).json({ message: error });
+    console.error('Registration error:', error);
+    res.status(500).json({
+      message: 'Gagal mendaftarkan psikolog',
+      error: process.env.NODE_ENV === 'development' ? error : null,
+    });
   }
 };
 
